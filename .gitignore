@@ -1,0 +1,10 @@
+target/
+node_modules/
+.next/
+dist/
+.env*.local
+.DS_Store
+*.log
+test-ledger/
+next-env.d.ts
+*.tsbuildinfo
