@@ -1,0 +1,14 @@
+{
+  "name": "liq",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "pnpm --filter @liq/app dev",
+    "build": "pnpm --filter @liq/app build",
+    "test": "pnpm --filter @liq/sdk test && cargo test -p liq",
+    "test:sdk": "pnpm --filter @liq/sdk test",
+    "build:program": "cd programs/liq && cargo build-sbf",
+    "fixtures": "cargo run -q -p liq --example export_fixtures",
+    "typecheck": "pnpm -r typecheck"
+  }
+}
