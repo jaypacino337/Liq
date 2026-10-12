@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  program:
+    name: Program (unit + LiteSVM)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Solana toolchain
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+      - name: Build SBF program
+        run: cd programs/liq && cargo build-sbf
+      - name: Rust tests
+        run: cargo test -p liq
+      - name: Fixtures are up to date
+        run: |
+          cargo run -q -p liq --example export_fixtures
+          git diff --exit-code sdk/test/fixtures.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: liq-so
+          path: target/deploy/liq.so
+
+  sdk-and-app:
+    name: SDK + app
+    needs: program
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/download-artifact@v4
+        with:
+          name: liq-so
+          path: target/deploy
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r typecheck
+      - run: pnpm --filter @liq/sdk test
+      - run: pnpm --filter @liq/app build

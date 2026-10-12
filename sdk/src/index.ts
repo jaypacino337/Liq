@@ -5,4 +5,5 @@ export * from "./accounts";
 export * from "./instructions";
 export * from "./events";
 export * from "./client";
+export * from "./metadata";
 export { Reader, Writer, bytesToHex, hexToBytes } from "./codec";

@@ -19,6 +19,7 @@ import {
   configPda,
   createLaunchIx,
   decodeConfig,
+  decodeMintMetadata,
   decodePool,
   initializeIx,
   parseEventsFromLogs,
@@ -114,6 +115,8 @@ describe.skipIf(!existsSync(SO))("SDK against the compiled program", () => {
 
     let p = env.pool(mint.publicKey);
     expect(p.creator.equals(creator.publicKey)).toBe(true);
+    const meta = decodeMintMetadata(env.getAccount(mint.publicKey)!.data);
+    expect(meta).toEqual({ name: "Tidal", symbol: "TIDE", uri: "https://x.y/t.json", supply: DEFAULT_LAUNCH_PARAMS.totalSupply, decimals: 6 });
     expect(p.tradeCount).toBe(1n);
 
     // Sell half with an exact slippage bound from the SDK quote.
